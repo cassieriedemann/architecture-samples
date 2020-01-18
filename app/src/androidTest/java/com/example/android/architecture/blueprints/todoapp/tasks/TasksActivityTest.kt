@@ -42,6 +42,8 @@ import com.example.android.architecture.blueprints.todoapp.util.EspressoIdlingRe
 import com.example.android.architecture.blueprints.todoapp.util.deleteAllTasksBlocking
 import com.example.android.architecture.blueprints.todoapp.util.monitorActivity
 import com.example.android.architecture.blueprints.todoapp.util.saveTaskBlocking
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.core.IsNot.not
 import org.junit.After
@@ -294,5 +296,55 @@ class TasksActivityTest {
 
         // Then verify task is displayed on screen
         onView(withText("title")).check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun recreateActivity() {
+        val activityScenario = ActivityScenario.launch(TasksActivity::class.java)
+        dataBindingIdlingResource.monitorActivity(activityScenario)
+
+        activityScenario.recreate()
+        dataBindingIdlingResource.monitorActivity(activityScenario)
+    }
+
+    @Test
+    fun createTaskRestartActivity() {
+        val activityScenario = ActivityScenario.launch(TasksActivity::class.java)
+        dataBindingIdlingResource.monitorActivity(activityScenario)
+
+        onView(withId(R.id.fab_add_task)).perform(click())
+        onView(withId(R.id.add_task_title)).perform(typeText("title"), closeSoftKeyboard())
+        onView(withId(R.id.add_task_description)).perform(typeText("description"))
+        onView(withId(R.id.fab_save_task)).perform(click())
+
+        activityScenario.recreate()
+        dataBindingIdlingResource.monitorActivity(activityScenario)
+
+//        onView(withId(R.id.add_task_title)).check(matches(withText("title")))
+//        onView(withId(R.id.add_task_description)).check(matches(withText("title")))
+
+        runBlocking { delay(1000) }
+        onView(withText("title")).check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun pendingTaskCreationSurvivesProcessDeath() {
+        val activityScenario = ActivityScenario.launch(TasksActivity::class.java)
+        dataBindingIdlingResource.monitorActivity(activityScenario)
+
+        onView(withId(R.id.fab_add_task)).perform(click())
+        onView(withId(R.id.add_task_title)).perform(typeText("title"), closeSoftKeyboard())
+        onView(withId(R.id.add_task_description)).perform(typeText("description"))
+//        onView(withId(R.id.fab_save_task)).perform(click())
+
+        activityScenario.recreate()
+        dataBindingIdlingResource.monitorActivity(activityScenario)
+
+//        onView(withId(R.id.add_task_title)).check(matches(withText("title")))
+//        onView(withId(R.id.add_task_description)).check(matches(withText("title")))
+
+        runBlocking { delay(1000) }
+        onView(withText("title")).check(matches(isDisplayed()))
+        onView(withText("description")).check(matches(isDisplayed()))
     }
 }

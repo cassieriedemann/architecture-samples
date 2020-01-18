@@ -17,7 +17,13 @@
 package com.example.android.architecture.blueprints.todoapp
 
 import androidx.lifecycle.LiveData
+import com.example.android.architecture.blueprints.todoapp.util.EspressoTrackedDispatcher
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import org.junit.Assert.assertEquals
+import org.junit.rules.TestRule
+import org.junit.runner.Description
+import org.junit.runners.model.Statement
 
 fun assertLiveDataEventTriggered(
     liveData: LiveData<Event<String>>,
@@ -30,4 +36,47 @@ fun assertLiveDataEventTriggered(
 fun assertSnackbarMessage(snackbarLiveData: LiveData<Event<Int>>, messageId: Int) {
     val value: Event<Int> = LiveDataTestUtil.getValue(snackbarLiveData)
     assertEquals(value.getContentIfNotHandled(), messageId)
+}
+
+class DispatcherIdlerRule: TestRule {
+    override fun apply(base: Statement?, description: Description?): Statement =
+            object : Statement() {
+                override fun evaluate() {
+                    val espressoTrackedDispatcherIO = EspressoTrackedDispatcher(Dispatchers.IO)
+                    val espressoTrackedDispatcherDefault = EspressoTrackedDispatcher(Dispatchers.Default)
+                    MyDispatchers.IO = espressoTrackedDispatcherIO
+                    MyDispatchers.Default = espressoTrackedDispatcherDefault
+                    try {
+                        base?.evaluate()
+                    } finally {
+                        espressoTrackedDispatcherIO.cleanUp()
+                        espressoTrackedDispatcherDefault.cleanUp()
+                        MyDispatchers.resetAll()
+                    }
+                }
+            }
+}
+
+object MyDispatchers {
+    var Main: CoroutineDispatcher = Dispatchers.Main
+    var IO: CoroutineDispatcher = Dispatchers.IO
+    var Default: CoroutineDispatcher = Dispatchers.Default
+
+    fun resetMain() {
+        Main = Dispatchers.Main
+    }
+
+    fun resetIO() {
+        IO = Dispatchers.IO
+    }
+
+    fun resetDefault() {
+        Default = Dispatchers.Default
+    }
+
+    fun resetAll() {
+        resetMain()
+        resetIO()
+        resetDefault()
+    }
 }

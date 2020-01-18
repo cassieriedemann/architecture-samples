@@ -58,4 +58,7 @@
     <string name="successfully_added_task_message">Task added</string>
     <string name="no_data_description" />
 
+    <string name="no_internet_connection">No internet connection</string>
+    <string name="saved_data">Task List (outstate)</string>
+
 </resources>

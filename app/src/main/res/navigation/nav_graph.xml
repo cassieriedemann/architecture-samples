@@ -81,4 +81,8 @@
     <argument
         android:name="userMessage"
         android:defaultValue="0" />
+    <fragment
+        android:id="@+id/savedDataFragment"
+        android:name="com.example.android.architecture.blueprints.todoapp.savedataexample.SavedDataFragment"
+        android:label="SavedDataFragment" />
 </navigation>

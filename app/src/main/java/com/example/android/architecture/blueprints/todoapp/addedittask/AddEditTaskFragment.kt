@@ -20,6 +20,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -60,6 +61,11 @@ class AddEditTaskFragment : DaggerFragment() {
         return viewDataBinding.root
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+
+    }
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         setupSnackbar()
@@ -68,12 +74,14 @@ class AddEditTaskFragment : DaggerFragment() {
         viewModel.start(args.taskId)
     }
 
+
+
     private fun setupSnackbar() {
         view?.setupSnackbar(this, viewModel.snackbarMessage, Snackbar.LENGTH_SHORT)
     }
 
     private fun setupNavigation() {
-        viewModel.taskUpdatedEvent.observe(this, EventObserver {
+        viewModel.taskUpdatedEvent.observe(viewLifecycleOwner, EventObserver {
             val action = AddEditTaskFragmentDirections
                 .actionAddEditTaskFragmentToTasksFragment(ADD_EDIT_RESULT_OK)
             findNavController().navigate(action)
