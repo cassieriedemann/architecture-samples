@@ -1,4 +1,4 @@
-# Android Architecture Blueprints - AAC + Dagger2 + Dagger-Android
+# Android Architecture Blueprints - AAC + Dagger2 + Dagger-Android + ViewModel Saved State
 ### Summary
 This sample is written in Kotlin and based on the
 [master](https://github.com/googlesamples/android-architecture/tree/master) branch which uses
@@ -17,7 +17,10 @@ deliberately simple and unopinionated.
 
  - The ServiceLocator class is removed. Object creation and scoping is handled by Dagger.
  - Flavors `mock` and `prod` are no longer needed for testing so they're removed.
+ - Dagger setup copied from [github-commit-browser](https://github.com/Nimrodda/github-commit-browser.git) mentioned in [this article](https://proandroiddev.com/saving-ui-state-with-viewmodel-savedstate-and-dagger-f77bcaeb8b08)
 
+
+### Differences with
 
 ### Key files
 
