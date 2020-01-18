@@ -19,7 +19,7 @@
         <LinearLayout
             android:id="@+id/linear"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="vertical"
             android:paddingLeft="@dimen/activity_horizontal_margin"
             android:paddingTop="@dimen/activity_vertical_margin"
@@ -28,21 +28,21 @@
 
             <EditText
                 android:id="@+id/add_task_title"
-                android:background="@null"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@null"
                 android:hint="@string/title_hint"
                 android:imeOptions="flagNoExtractUi"
                 android:maxLines="1"
                 android:text="@={viewmodel.title}"
-                android:textStyle="bold"
-                android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+                android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                android:textStyle="bold" />
 
             <EditText
                 android:id="@+id/add_task_description"
-                android:background="@null"
                 android:layout_width="match_parent"
-                android:layout_height="350dp"
+                android:layout_height="match_parent"
+                android:background="@null"
                 android:gravity="top"
                 android:hint="@string/description_hint"
                 android:imeOptions="flagNoExtractUi"

@@ -4,6 +4,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.LayoutRes
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
+import androidx.databinding.library.baseAdapters.BR
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
@@ -20,30 +24,28 @@ import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-abstract class BaseSavedDataFragment<V: ViewModel> : DaggerFragment() {
+abstract class BaseSavedDataFragment<V: ViewModel, B: ViewDataBinding> : DaggerFragment() {
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
 
+    protected lateinit var binding: B
+
+    @get:LayoutRes
+    protected abstract val layoutId: Int
+
     abstract val vm: ViewModel
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        binding = DataBindingUtil.inflate(inflater, layoutId, container, false)
+        binding.lifecycleOwner = this
+        binding.setVariable(BR.viewmodel, vm)
+        return binding.root
+    }
 }
 
-class SavedDataFragment : BaseSavedDataFragment<SavedDataVm>() {
-    private lateinit var viewDataBinding: SavedataFragBinding
-
+class SavedDataFragment : BaseSavedDataFragment<SavedDataVm, SavedataFragBinding>() {
     override val vm: SavedDataVm by viewModels { viewModelFactory }
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        val root = inflater.inflate(R.layout.savedata_frag, container, false)
-        viewDataBinding = SavedataFragBinding.bind(root).apply {
-            this.viewmodel = vm
-        }
-
-        viewDataBinding.lifecycleOwner = this.viewLifecycleOwner
-        return viewDataBinding.root
-    }
+    override val layoutId = R.layout.savedata_frag
 }
 
 const val TITLE_KEY = "title"
