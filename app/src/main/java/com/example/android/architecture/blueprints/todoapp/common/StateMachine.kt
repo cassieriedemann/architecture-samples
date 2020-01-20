@@ -66,19 +66,19 @@ sealed class LceState<T>(val data: T?, val throwable: Throwable? = null) {
  * Events that occur to our [LceStateMachine]. These can represent the loading, content, and error
  * transitions.
  */
-sealed class LceEvent<T> {
+sealed class LceEvent<out T> {
     /**
      * On loading event, contains no data, the content from the last state will be copied over in
      * the state machine transition
      */
-    class OnLoading<T>: LceEvent<T>()
+    object OnLoading: LceEvent<Nothing>()
 
     /**
      * Content has finished loading, data from the last state will be replaced in the state machine
      *
      * @param data the payload of type [T] that was returned from any given data source
      */
-    data class OnContent<T>(val data: T?): LceEvent<T>()
+    data class OnContent<out T>(val data: T?): LceEvent<T>()
 
     /**
      * There was an error when fetching content, the content from the last state will be copied over
@@ -86,7 +86,7 @@ sealed class LceEvent<T> {
      *
      * @param throwable the throwable that was caught while fetching data
      */
-    data class OnError<T>(val throwable: Throwable): LceEvent<T>()
+    data class OnError(val throwable: Throwable): LceEvent<Nothing>()
 
     override fun toString(): String {
         return when(this) {
@@ -167,7 +167,7 @@ abstract class LceStateMachine<T>(
             }
 
             // to error
-            on<LceEvent.OnError<T>> {
+            on<LceEvent.OnError> {
                 // retain data from last state
                 transitionTo(LceState.Error(it.throwable, data), LceLoggers.LogError)
             }
@@ -181,12 +181,12 @@ abstract class LceStateMachine<T>(
             }
 
             // to loading
-            on<LceEvent.OnLoading<T>> {
+            on<LceEvent.OnLoading> {
                 transitionTo(LceState.Loading(data), LceLoggers.LogLoading)
             }
 
             // to error
-            on<LceEvent.OnError<T>> {
+            on<LceEvent.OnError> {
                 transitionTo(LceState.Error(it.throwable, data), LceLoggers.LogError)
             }
         }
@@ -194,7 +194,7 @@ abstract class LceStateMachine<T>(
         // from error
         state<LceState.Error<T>> {
             // to loading
-            on<LceEvent.OnLoading<T>> {
+            on<LceEvent.OnLoading> {
                 transitionTo(LceState.Loading(data), LceLoggers.LogLoading)
             }
         }

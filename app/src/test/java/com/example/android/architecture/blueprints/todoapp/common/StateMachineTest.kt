@@ -27,7 +27,7 @@ class StateMachineTest {
     @Test
     fun `on transition to loading, isLoading returns true for state`() {
         val lceStateMachine = TaskStateMachine()
-        lceStateMachine.transition(LceEvent.OnLoading())
+        lceStateMachine.transition(LceEvent.OnLoading)
         assert(lceStateMachine.state().isLoading())
     }
 
@@ -43,8 +43,8 @@ class StateMachineTest {
     @Test
     fun `loading to loading transition is invalid`() {
         val lceStateMachine = TaskStateMachine()
-        lceStateMachine.transition(LceEvent.OnLoading())
-        val t = lceStateMachine.transition(LceEvent.OnLoading())
+        lceStateMachine.transition(LceEvent.OnLoading)
+        val t = lceStateMachine.transition(LceEvent.OnLoading)
         assert(t is StateMachine.Transition.Invalid)
         assert(t.isInvalid())
     }
@@ -54,7 +54,7 @@ class StateMachineTest {
         val lceStateMachine = TaskStateMachine()
         assert(lceStateMachine.state().isEmpty())
         val task = Task("title", "description")
-        lceStateMachine.transition(LceEvent.OnLoading())
+        lceStateMachine.transition(LceEvent.OnLoading)
         lceStateMachine.transition(LceEvent.OnContent(task))
         assertEquals(LceState.Content(task), lceStateMachine.state())
         assertEquals(task, lceStateMachine.state().data)
@@ -72,8 +72,8 @@ class StateMachineTest {
     @Test(expected = IllegalStateException::class)
     fun `strict mode throws exception on invalid transition`() {
         val lceStateMachine = TaskStateMachine(safeMode = true)
-        lceStateMachine.transition(LceEvent.OnLoading())
-        val t = lceStateMachine.transition(LceEvent.OnLoading())
+        lceStateMachine.transition(LceEvent.OnLoading)
+        val t = lceStateMachine.transition(LceEvent.OnLoading)
         assert(t is StateMachine.Transition.Invalid)
         assert(t.isInvalid())
     }
@@ -86,7 +86,7 @@ class StateMachineTest {
         val task = Task("title", "description")
         val t1 = lceStateMachine.transition(LceEvent.OnContent(task))
         assert(t1.isInvalid())
-        lceStateMachine.transition(LceEvent.OnLoading())
+        lceStateMachine.transition(LceEvent.OnLoading)
         val t2 = lceStateMachine.transition(LceEvent.OnContent(task))
         assert(t2.isValid())
     }
@@ -96,7 +96,7 @@ class StateMachineTest {
         val initialState = Task("title", "description")
         val lceStateMachine = TaskStateMachine(initialState)
         assertEquals(initialState, lceStateMachine.state().data)
-        lceStateMachine.transition(LceEvent.OnLoading())
+        lceStateMachine.transition(LceEvent.OnLoading)
         assertEquals(initialState, lceStateMachine.state().data)
     }
 
