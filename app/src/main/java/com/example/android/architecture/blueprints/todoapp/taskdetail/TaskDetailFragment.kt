@@ -58,12 +58,12 @@ class TaskDetailFragment : DaggerFragment() {
     }
 
     private fun setupNavigation() {
-        viewModel.deleteTaskCommand.observe(this, EventObserver {
+        viewModel.deleteTaskCommand.observe(viewLifecycleOwner, EventObserver {
             val action = TaskDetailFragmentDirections
                 .actionTaskDetailFragmentToTasksFragment(DELETE_RESULT_OK)
             findNavController().navigate(action)
         })
-        viewModel.editTaskCommand.observe(this, EventObserver {
+        viewModel.editTaskCommand.observe(viewLifecycleOwner, EventObserver {
             val action = TaskDetailFragmentDirections
                 .actionTaskDetailFragmentToAddEditTaskFragment(
                     args.taskId,
