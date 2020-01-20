@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.android.architecture.blueprints.todoapp.R
 import com.example.android.architecture.blueprints.todoapp.common.*
+import com.example.android.architecture.blueprints.todoapp.data.Task
 import com.example.android.architecture.blueprints.todoapp.data.source.TasksRepository
 import com.example.android.architecture.blueprints.todoapp.databinding.SavedataFragBinding
 import com.example.android.architecture.blueprints.todoapp.di.ViewModelAssistedFactory
@@ -23,6 +24,7 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 abstract class BaseSavedDataFragment<V: ViewModel, B: ViewDataBinding> : DaggerFragment() {
@@ -44,6 +46,47 @@ abstract class BaseSavedDataFragment<V: ViewModel, B: ViewDataBinding> : DaggerF
     }
 }
 
+class SavedDataFragment : BaseSavedDataFragment<SavedDataVm, SavedataFragBinding>() {
+    override val vm: SavedDataVm by viewModels { viewModelFactory }
+    override val layoutId = R.layout.savedata_frag
+}
+
+const val TITLE_KEY = "title"
+const val DESCRIPTION_KEY = "description"
+
+class SavedDataVm @AssistedInject constructor (
+        @Assisted private val handle: SavedStateHandle,
+        private val tasksRepository: TasksRepository
+) : ViewModel() {
+
+    val title = MutableLiveData<String>()
+    val description = MutableLiveData<String>()
+
+    init {
+        title.postValue(handle.get(TITLE_KEY) ?: "")
+        description.postValue(handle[DESCRIPTION_KEY] ?: "")
+        viewModelScope.launch {
+            val tasks = tasksRepository.getTasks()
+            Timber.v("$tasks")
+        }
+    }
+
+    fun saveData() {
+        handle[TITLE_KEY] = title.value
+        handle[DESCRIPTION_KEY] = description.value
+    }
+
+    @AssistedInject.Factory
+    interface Factory : ViewModelAssistedFactory<SavedDataVm>
+}
+
+/**
+ *
+ * LCE BASE
+ *
+ */
+
+
 abstract class BaseViewModel<S, M: LceStateMachine<S>>(private var machine: M, private val handle: SavedStateHandle): ViewModel() {
     abstract val STATE_KEY: String
 
@@ -56,7 +99,7 @@ abstract class BaseViewModel<S, M: LceStateMachine<S>>(private var machine: M, p
     open fun loadData(block: () -> S) {
         viewModelScope.launch {
             try {
-                machine.transition(LceEvent.OnLoading())
+                machine.transition(LceEvent.OnLoading)
                 val d = block.invoke()
                 machine.transition(LceEvent.OnContent(d))
                 data.postValue(machine.state())
@@ -79,40 +122,23 @@ abstract class BaseViewModel<S, M: LceStateMachine<S>>(private var machine: M, p
     }
 }
 
-//class TaskViewModel constructor(taskStateMachine: TaskStateMachine, handle: SavedStateHandle) : BaseViewModel<Task, TaskStateMachine>(taskStateMachine, handle) {
-//    override val STATE_KEY = "TaskViewModelStateKey"
-//
-//    override fun loadData(block: () -> Task) = super.loadData(block)
-//
-//}
-
-
-class SavedDataFragment : BaseSavedDataFragment<SavedDataVm, SavedataFragBinding>() {
-    override val vm: SavedDataVm by viewModels { viewModelFactory }
-    override val layoutId = R.layout.savedata_frag
-}
-
-const val TITLE_KEY = "title"
-const val DESCRIPTION_KEY = "description"
-
-class SavedDataVm @AssistedInject constructor (
-        @Assisted private val handle: SavedStateHandle,
+class TaskStateMachine(
+        task: Task? = null,
+        safeMode: Boolean = false)
+    : LceStateMachine<Task>(
+        data = task,
+        onContent = printLoggerTransitionCallback,
+        onLoading = printLoggerTransitionCallback,
+        onError = printLoggerTransitionCallback,
+        strictMode = safeMode
+)
+class TaskViewModel constructor(
+        handle: SavedStateHandle,
         private val tasksRepository: TasksRepository
-) : ViewModel() {
+) : BaseViewModel<Task, TaskStateMachine>(TaskStateMachine(), handle) {
+    override val STATE_KEY = "TaskViewModelStateKey"
 
-    val title = MutableLiveData<String>()
-    val description = MutableLiveData<String>()
+    override fun loadData(block: () -> Task) = super.loadData(block)
 
-    init {
-        title.postValue(handle.get(TITLE_KEY) ?: "")
-        description.postValue(handle[DESCRIPTION_KEY] ?: "")
-    }
-
-    fun saveData() {
-        handle[TITLE_KEY] = title.value
-        handle[DESCRIPTION_KEY] = description.value
-    }
-
-    @AssistedInject.Factory
-    interface Factory : ViewModelAssistedFactory<SavedDataVm>
 }
+

@@ -16,6 +16,7 @@
 package com.example.android.architecture.blueprints.todoapp.tasks
 
 import androidx.test.core.app.ActivityScenario
+import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.action.ViewActions.click
@@ -344,6 +345,7 @@ class TasksActivityTest {
 //        onView(withId(R.id.add_task_description)).check(matches(withText("title")))
 
         runBlocking { delay(1000) }
+        Espresso.closeSoftKeyboard()
         onView(withText("title")).check(matches(isDisplayed()))
         onView(withText("description")).check(matches(isDisplayed()))
     }

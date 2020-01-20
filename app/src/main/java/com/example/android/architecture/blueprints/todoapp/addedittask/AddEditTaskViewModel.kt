@@ -16,30 +16,34 @@
 
 package com.example.android.architecture.blueprints.todoapp.addedittask
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.example.android.architecture.blueprints.todoapp.Event
 import com.example.android.architecture.blueprints.todoapp.R
 import com.example.android.architecture.blueprints.todoapp.data.Result.Success
 import com.example.android.architecture.blueprints.todoapp.data.Task
 import com.example.android.architecture.blueprints.todoapp.data.source.TasksRepository
+import com.example.android.architecture.blueprints.todoapp.di.ViewModelAssistedFactory
+import com.squareup.inject.assisted.Assisted
+import com.squareup.inject.assisted.AssistedInject
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
  * ViewModel for the Add/Edit screen.
  */
-class AddEditTaskViewModel @Inject constructor(
-    private val tasksRepository: TasksRepository
+class AddEditTaskViewModel @AssistedInject constructor(
+        @Assisted private val handle: SavedStateHandle,
+        private val tasksRepository: TasksRepository
 ) : ViewModel() {
+    private val TASK_ID = "Task.Id"
+    private val TASK_TITLE = "Task.Title"
+    private val TASK_DESCRIPTION = "Task.Description"
 
     // Two-way databinding, exposing MutableLiveData
-    val title = MutableLiveData<String>()
+    val title = handle.getLiveData<String>(TASK_TITLE)
 
     // Two-way databinding, exposing MutableLiveData
-    val description = MutableLiveData<String>()
+    val description = handle.getLiveData<String>(TASK_DESCRIPTION)
 
     private val _dataLoading = MutableLiveData<Boolean>()
     val dataLoading: LiveData<Boolean> = _dataLoading
@@ -63,7 +67,7 @@ class AddEditTaskViewModel @Inject constructor(
             return
         }
 
-        this.taskId = taskId
+        this.taskId = taskId ?: handle[TASK_ID]
         if (taskId == null) {
             // No need to populate, it's a new task
             isNewTask = true
@@ -89,6 +93,7 @@ class AddEditTaskViewModel @Inject constructor(
     }
 
     private fun onTaskLoaded(task: Task) {
+        handle[TASK_ID] = task.id
         title.value = task.title
         description.value = task.description
         taskCompleted = task.isCompleted
@@ -137,4 +142,7 @@ class AddEditTaskViewModel @Inject constructor(
             _taskUpdated.value = Event(Unit)
         }
     }
+
+    @AssistedInject.Factory
+    interface Factory : ViewModelAssistedFactory<AddEditTaskViewModel>
 }

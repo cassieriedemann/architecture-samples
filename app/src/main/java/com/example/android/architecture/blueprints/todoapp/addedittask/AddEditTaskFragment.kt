@@ -27,6 +27,7 @@ import androidx.navigation.fragment.navArgs
 import com.example.android.architecture.blueprints.todoapp.EventObserver
 import com.example.android.architecture.blueprints.todoapp.R
 import com.example.android.architecture.blueprints.todoapp.databinding.AddtaskFragBinding
+import com.example.android.architecture.blueprints.todoapp.di.ViewModelFactory
 import com.example.android.architecture.blueprints.todoapp.tasks.ADD_EDIT_RESULT_OK
 import com.example.android.architecture.blueprints.todoapp.util.setupRefreshLayout
 import com.example.android.architecture.blueprints.todoapp.util.setupSnackbar
@@ -44,7 +45,7 @@ class AddEditTaskFragment : DaggerFragment() {
     private val args: AddEditTaskFragmentArgs by navArgs()
 
     @Inject
-    lateinit var viewModelFactory: ViewModelProvider.Factory
+    lateinit var viewModelFactory: ViewModelFactory
 
     private val viewModel by viewModels<AddEditTaskViewModel> { viewModelFactory }
 
