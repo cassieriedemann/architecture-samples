@@ -82,6 +82,7 @@ dependencies {
     implementation "androidx.cardview:cardview:$cardVersion"
     implementation "com.google.android.material:material:$materialVersion"
     implementation "androidx.recyclerview:recyclerview:$recyclerViewVersion"
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation "androidx.annotation:annotation:$androidXAnnotations"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
     implementation "com.jakewharton.timber:timber:$timberVersion"
@@ -125,7 +126,7 @@ dependencies {
     testImplementation "androidx.test.ext:junit-ktx:$androidXTestExtKotlinRunnerVersion"
     testImplementation "androidx.test:rules:$androidXTestRulesVersion"
     // Once https://issuetracker.google.com/127986458 is fixed this can be testImplementation
-    androidTestImplementation "androidx.fragment:fragment-testing:$fragmentVersion"
+    testImplementation "androidx.fragment:fragment-testing:$fragmentVersion"
     implementation "androidx.test:core:$androidXTestCoreVersion"
     implementation "androidx.fragment:fragment:$fragmentVersion"
 
@@ -164,4 +165,6 @@ dependencies {
     // Using Dagger in androidTest and Robolectric too
     kaptAndroidTest "com.google.dagger:dagger-compiler:$daggerVersion"
     kaptTest "com.google.dagger:dagger-compiler:$daggerVersion"
+
+    implementation 'com.tinder.statemachine:statemachine:0.2.0'
 }

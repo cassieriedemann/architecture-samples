@@ -14,6 +14,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.android.architecture.blueprints.todoapp.R
+import com.example.android.architecture.blueprints.todoapp.common.*
 import com.example.android.architecture.blueprints.todoapp.data.source.TasksRepository
 import com.example.android.architecture.blueprints.todoapp.databinding.SavedataFragBinding
 import com.example.android.architecture.blueprints.todoapp.di.ViewModelAssistedFactory
@@ -42,6 +43,49 @@ abstract class BaseSavedDataFragment<V: ViewModel, B: ViewDataBinding> : DaggerF
         return binding.root
     }
 }
+
+abstract class BaseViewModel<S, M: LceStateMachine<S>>(private var machine: M, private val handle: SavedStateHandle): ViewModel() {
+    abstract val STATE_KEY: String
+
+    val data = MutableLiveData<LceState<S>>()
+
+    init {
+        machine.rebuildStateMachine(handle[STATE_KEY])
+    }
+
+    open fun loadData(block: () -> S) {
+        viewModelScope.launch {
+            try {
+                machine.transition(LceEvent.OnLoading())
+                val d = block.invoke()
+                machine.transition(LceEvent.OnContent(d))
+                data.postValue(machine.state())
+                handle[STATE_KEY] = d
+            } catch (t: Throwable) {
+                machine.transition(LceEvent.OnError(t))
+            }
+        }
+    }
+
+    open fun clearError(): Throwable? {
+        if (machine.state().hasError()) {
+            val s = machine.state()
+            val t = s.throwable
+            val d = s.data
+            machine.transition(LceEvent.OnContent(d))
+            return t
+        }
+        return null
+    }
+}
+
+//class TaskViewModel constructor(taskStateMachine: TaskStateMachine, handle: SavedStateHandle) : BaseViewModel<Task, TaskStateMachine>(taskStateMachine, handle) {
+//    override val STATE_KEY = "TaskViewModelStateKey"
+//
+//    override fun loadData(block: () -> Task) = super.loadData(block)
+//
+//}
+
 
 class SavedDataFragment : BaseSavedDataFragment<SavedDataVm, SavedataFragBinding>() {
     override val vm: SavedDataVm by viewModels { viewModelFactory }
