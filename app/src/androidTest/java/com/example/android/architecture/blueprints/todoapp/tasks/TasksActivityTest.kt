@@ -15,6 +15,7 @@
  */
 package com.example.android.architecture.blueprints.todoapp.tasks
 
+import androidx.fragment.app.testing.launchFragment
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
@@ -336,15 +337,10 @@ class TasksActivityTest {
         onView(withId(R.id.fab_add_task)).perform(click())
         onView(withId(R.id.add_task_title)).perform(typeText("title"), closeSoftKeyboard())
         onView(withId(R.id.add_task_description)).perform(typeText("description"))
-//        onView(withId(R.id.fab_save_task)).perform(click())
 
         activityScenario.recreate()
         dataBindingIdlingResource.monitorActivity(activityScenario)
 
-//        onView(withId(R.id.add_task_title)).check(matches(withText("title")))
-//        onView(withId(R.id.add_task_description)).check(matches(withText("title")))
-
-        runBlocking { delay(1000) }
         Espresso.closeSoftKeyboard()
         onView(withText("title")).check(matches(isDisplayed()))
         onView(withText("description")).check(matches(isDisplayed()))

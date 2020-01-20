@@ -16,6 +16,7 @@
 package com.example.android.architecture.blueprints.todoapp.addedittask
 
 import android.os.Bundle
+import android.os.LocaleList
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -62,11 +63,6 @@ class AddEditTaskFragment : DaggerFragment() {
         return viewDataBinding.root
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-
-    }
-
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         setupSnackbar()
@@ -74,8 +70,6 @@ class AddEditTaskFragment : DaggerFragment() {
         this.setupRefreshLayout(viewDataBinding.refreshLayout)
         viewModel.start(args.taskId)
     }
-
-
 
     private fun setupSnackbar() {
         view?.setupSnackbar(this, viewModel.snackbarMessage, Snackbar.LENGTH_SHORT)
